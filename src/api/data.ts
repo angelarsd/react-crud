@@ -3,7 +3,7 @@ import axios from 'axios';
 const API_URL = import.meta.env.VITE_API_URL;
 
 export interface Data {
-  id: string;
+  id: number;
   name: string;
   lastname: string;
   age: number;
@@ -29,6 +29,6 @@ export const updateData = async (
   return response.data;
 };
 
-export const deleteData = async (id: string) => {
+export const deleteData = async (id: number) => {
   await axios.delete(`${API_URL}/${id}`);
 };
