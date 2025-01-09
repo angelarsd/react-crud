@@ -11,6 +11,8 @@ import {
   Skeleton,
   Typography,
   Container,
+  Button,
+  Box,
 } from '@mui/material';
 import { Edit, Delete, Female, Male } from '@mui/icons-material';
 import { deleteData } from '../api/data';
@@ -51,9 +53,23 @@ const DataList: React.FC = () => {
 
   const handleEdit = (id: number) => () => navigate(`/edit/${id}`);
 
+  const handleCreate = () => {
+    navigate('/add');
+  };
+
   return (
     <Container>
-      <Typography typography="h4">Data</Typography>
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        mb={2}
+      >
+        <Typography typography="h4">Data</Typography>
+        <Button variant="contained" onClick={handleCreate}>
+          Create
+        </Button>
+      </Box>
       <br />
       <TableContainer component={Paper}>
         <Table>

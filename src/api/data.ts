@@ -6,7 +6,7 @@ export interface Data {
   id: number;
   name: string;
   lastname: string;
-  age: number;
+  age: number | null;
   gender: string;
   email: string;
 }
@@ -16,15 +16,17 @@ export const getData = async () => {
   return response?.data?.result || [];
 };
 
-export const createData = async (data: { name: string; email: string }) => {
+export const getDataById = async (id: number) => {
+  const response = await axios.get(`${API_URL}/${id}`);
+  return response.data;
+};
+
+export const createData = async (data: Omit<Data, 'id'>) => {
   const response = await axios.post(API_URL, data);
   return response.data;
 };
 
-export const updateData = async (
-  id: string,
-  data: { name: string; email: string }
-) => {
+export const updateData = async (id: number, data: Omit<Data, 'id'>) => {
   const response = await axios.put(`${API_URL}/${id}`, data);
   return response.data;
 };

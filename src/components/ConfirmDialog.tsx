@@ -60,7 +60,6 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
         <DialogActions>
           <Button
             onClick={handleClose}
-            color="primary"
             disabled={isCancelLoading || isConfirmLoading}
             startIcon={
               isCancelLoading ? (
