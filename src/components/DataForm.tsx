@@ -56,7 +56,6 @@ const MyForm = () => {
       } else {
         await createData(formData);
       }
-      setIsUpdating(false);
       navigate('/');
       openSnackbar(
         `Data ${isEdit ? 'updated' : 'created'} successfully`,
@@ -66,6 +65,7 @@ const MyForm = () => {
       openSnackbar(`Failed to ${isEdit ? 'update' : 'create'} data`, 'error');
       throw error;
     }
+    setIsUpdating(false);
   };
 
   return (
