@@ -5,10 +5,13 @@ import {
   DialogContentText,
   DialogTitle,
   Button,
+  CircularProgress,
 } from '@mui/material';
+import { useState } from 'react';
 
 interface ConfirmDialogProps {
   onConfirm: () => void | Promise<void>;
+  onCancel?: () => void | Promise<void>;
   open: boolean;
   setOpen: (show: boolean) => void;
 }
@@ -16,20 +19,35 @@ interface ConfirmDialogProps {
 const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   open,
   onConfirm,
+  onCancel,
   setOpen,
 }) => {
-  const handleConfirm = () => {
-    onConfirm();
+  const [isConfirmLoading, setIsConfirmLoading] = useState(false);
+  const [isCancelLoading, setIsCancelLoading] = useState(false);
+
+  const handleConfirm = async () => {
+    setIsConfirmLoading(true);
+    await onConfirm();
+    setIsConfirmLoading(false);
     setOpen(false);
   };
 
   const handleClose = () => setOpen(false);
 
+  const handleCancel = async () => {
+    setIsCancelLoading(true);
+    if (onCancel !== undefined) {
+      await onCancel();
+    }
+    setIsCancelLoading(false);
+    setOpen(false);
+  };
+
   return (
     <div>
       <Dialog
         open={open}
-        onClose={handleClose}
+        onClose={handleCancel}
         aria-labelledby="confirm-dialog-title"
         aria-describedby="confirm-dialog-description"
       >
@@ -40,10 +58,29 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} color="primary">
+          <Button
+            onClick={handleClose}
+            color="primary"
+            disabled={isCancelLoading || isConfirmLoading}
+            startIcon={
+              isCancelLoading ? (
+                <CircularProgress size={20} color="inherit" />
+              ) : null
+            }
+          >
             Cancel
           </Button>
-          <Button onClick={handleConfirm} color="primary" autoFocus>
+          <Button
+            onClick={handleConfirm}
+            disabled={isCancelLoading || isConfirmLoading}
+            startIcon={
+              isConfirmLoading ? (
+                <CircularProgress size={20} color="inherit" />
+              ) : null
+            }
+            color="primary"
+            autoFocus
+          >
             Confirm
           </Button>
         </DialogActions>
