@@ -7,17 +7,20 @@ function useFetchData() {
   const [data, setData] = useState<Data[]>([]);
   const { openSnackbar } = useSnackbar();
 
-  const fetchData = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      const data = await getData();
-      setData(data);
-      setIsLoading(false);
-    } catch (error) {
-      openSnackbar('Failed to fetch data', 'error');
-      throw error;
-    }
-  }, [openSnackbar]);
+  const fetchData = useCallback(
+    async (filters: Omit<Data, 'id'> | undefined) => {
+      try {
+        setIsLoading(true);
+        const data = await getData(filters);
+        setData(data);
+        setIsLoading(false);
+      } catch (error) {
+        openSnackbar('Failed to fetch data', 'error');
+        throw error;
+      }
+    },
+    [openSnackbar]
+  );
 
   return { data, fetchData, isLoading };
 }

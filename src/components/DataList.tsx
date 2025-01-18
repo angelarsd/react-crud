@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Table,
   TableBody,
@@ -14,30 +14,48 @@ import {
   Button,
   Box,
 } from '@mui/material';
-import { Edit, Delete, Female, Male } from '@mui/icons-material';
-import { deleteData } from '../api/data';
+import {
+  Edit,
+  Delete,
+  Female,
+  Male,
+  Add,
+  FilterAlt,
+} from '@mui/icons-material';
+import { Data, deleteData } from '../api/data';
 import { useSnackbar } from '../contexts/SnackbarContext';
 import ConfirmDialog from './ConfirmDialog';
 import useFetchData from '../hooks/useFetchData';
 import { useNavigate } from 'react-router-dom';
+import Drawer from './Drawer';
+import FormWithQueryParams from './FormWithQueryParams';
+import FiltersWithPills from './FiltersWithPills';
 
 const DataList: React.FC = () => {
   const { data, fetchData, isLoading } = useFetchData();
   const { openSnackbar } = useSnackbar();
   const navigate = useNavigate();
+  const searchParams = new URLSearchParams(location.search);
+  const filters = useMemo(() => {
+    return Object.fromEntries(searchParams.entries()) as unknown as Omit<
+      Data,
+      'id'
+    >;
+  }, [location.search]);
 
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [open, setOpen] = useState(false);
+  const [openDrawer, setOpenDrawer] = useState(false);
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    fetchData(filters);
+  }, [filters]);
 
   const handleDelete = async () => {
     if (selectedId) {
       try {
         await deleteData(selectedId);
-        fetchData();
+        fetchData(filters);
         openSnackbar('Data deleted successfully', 'success');
       } catch (error) {
         openSnackbar('Failed to delete data', 'error');
@@ -65,11 +83,27 @@ const DataList: React.FC = () => {
         alignItems="center"
         mb={2}
       >
-        <Typography typography="h4">Data</Typography>
-        <Button variant="contained" onClick={handleCreate}>
-          Create
-        </Button>
+        <Typography variant="h4" component="h4">
+          Data
+        </Typography>
+        <Box display="flex" gap={2}>
+          <Button
+            variant="contained"
+            onClick={handleCreate}
+            startIcon={<Add />}
+          >
+            Create
+          </Button>
+          <Button
+            variant="contained"
+            onClick={() => setOpenDrawer(true)}
+            startIcon={<FilterAlt />}
+          >
+            Filter
+          </Button>
+        </Box>
       </Box>
+      <FiltersWithPills />
       <br />
       <TableContainer component={Paper}>
         <Table>
@@ -124,6 +158,11 @@ const DataList: React.FC = () => {
         </Table>
       </TableContainer>
       <ConfirmDialog onConfirm={handleDelete} setOpen={setOpen} open={open} />
+      <Drawer open={openDrawer} onClose={() => setOpenDrawer(false)}>
+        <Typography typography="h4">
+          <FormWithQueryParams onSubmit={() => setOpenDrawer(false)} />
+        </Typography>
+      </Drawer>
     </Container>
   );
 };

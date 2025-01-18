@@ -11,8 +11,8 @@ export interface Data {
   email: string;
 }
 
-export const getData = async () => {
-  const response = await axios.get(`${API_URL}/data`);
+export const getData = async (params: Omit<Data, 'id'> | undefined) => {
+  const response = await axios.get(`${API_URL}/data`, { params });
   return response?.data?.result || [];
 };
 
