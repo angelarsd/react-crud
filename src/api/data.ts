@@ -10,10 +10,26 @@ export interface Data {
   gender: string;
   email: string;
 }
+export interface DataPagination {
+  result: Data[];
+  pagination?: {
+    total: number;
+    page: number;
+    perPage: number;
+    totalPages: number;
+    nextPage: number | null;
+    prevPage: number | null;
+  };
+}
+
+export interface FiltersData extends Omit<Data, 'id'> {
+  page: number;
+  perPage: number;
+}
 
 export const getData = async (params: Omit<Data, 'id'> | undefined) => {
   const response = await axios.get(`${API_URL}/data`, { params });
-  return response?.data?.result || [];
+  return response?.data || [];
 };
 
 export const getDataById = async (id: number) => {

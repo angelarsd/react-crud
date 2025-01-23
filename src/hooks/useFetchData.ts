@@ -1,14 +1,16 @@
 import { useCallback, useState } from 'react';
 import { useSnackbar } from '../contexts/SnackbarContext';
-import { Data, getData } from '../api/data';
+import { DataPagination, FiltersData, getData } from '../api/data';
 
 function useFetchData() {
   const [isLoading, setIsLoading] = useState(false);
-  const [data, setData] = useState<Data[]>([]);
+  const [data, setData] = useState<DataPagination>({
+    result: [],
+  });
   const { openSnackbar } = useSnackbar();
 
   const fetchData = useCallback(
-    async (filters: Omit<Data, 'id'> | undefined) => {
+    async (filters: FiltersData | undefined) => {
       try {
         setIsLoading(true);
         const data = await getData(filters);
