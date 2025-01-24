@@ -27,18 +27,24 @@ import { deleteData, FiltersData } from '../api/data';
 import { useSnackbar } from '../contexts/SnackbarContext';
 import ConfirmDialog from './ConfirmDialog';
 import useFetchData from '../hooks/useFetchData';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Drawer from './Drawer';
 import FormWithQueryParams from './FormWithQueryParams';
 import FiltersWithPills from './FiltersWithPills';
 
 const DataList: React.FC = () => {
   const { data, fetchData, isLoading } = useFetchData();
-  const [page, setPage] = React.useState(1);
-  const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const { openSnackbar } = useSnackbar();
   const navigate = useNavigate();
+  const location = useLocation();
+
   const searchParams = new URLSearchParams(location.search);
+  const initialPage = parseInt(searchParams.get('page') || '1', 10);
+  const initialRowsPerPage = parseInt(searchParams.get('perPage') || '10', 10);
+
+  const [page, setPage] = useState(initialPage);
+  const [rowsPerPage, setRowsPerPage] = useState(initialRowsPerPage);
+
   const filters = useMemo(() => {
     return Object.fromEntries(searchParams.entries()) as unknown as FiltersData;
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -52,6 +58,25 @@ const DataList: React.FC = () => {
     fetchData(filters);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters]);
+
+  const updateURLParams = (newPage: number, newRowsPerPage: number) => {
+    const params = new URLSearchParams(location.search);
+    params.set('page', newPage.toString());
+    params.set('perPage', newRowsPerPage.toString());
+    navigate({ search: params.toString() }, { replace: true });
+  };
+
+  const handlePageChange = (_event: unknown, newPage: number) => {
+    setPage(newPage + 1);
+    updateURLParams(newPage + 1, rowsPerPage);
+  };
+
+  const handleRowsPerPageChange = (event: { target: { value: string } }) => {
+    const newRowsPerPage = parseInt(event.target.value, 10);
+    setRowsPerPage(newRowsPerPage);
+    setPage(1);
+    updateURLParams(1, newRowsPerPage);
+  };
 
   const handleDelete = async () => {
     if (selectedId) {
@@ -72,22 +97,7 @@ const DataList: React.FC = () => {
   };
 
   const handleEdit = (id: number) => () => navigate(`/edit/${id}`);
-
-  const handleCreate = () => {
-    navigate('/add');
-  };
-
-  const handlePageChange = (_event: unknown, newPage: number) => {
-    setPage(newPage);
-    fetchData({ ...filters, page: newPage, perPage: rowsPerPage });
-  };
-
-  const handleRowsPerPageChange = (event: { target: { value: string } }) => {
-    const newRowsPerPage = parseInt(event.target.value, 10);
-    setRowsPerPage(newRowsPerPage);
-    setPage(1);
-    fetchData({ ...filters, page: 1, perPage: newRowsPerPage });
-  };
+  const handleCreate = () => navigate('/add');
 
   return (
     <Container>
@@ -177,7 +187,7 @@ const DataList: React.FC = () => {
           component="div"
           count={data.pagination?.total || 0}
           rowsPerPage={rowsPerPage}
-          page={page}
+          page={page - 1}
           onPageChange={handlePageChange}
           onRowsPerPageChange={handleRowsPerPageChange}
           showFirstButton

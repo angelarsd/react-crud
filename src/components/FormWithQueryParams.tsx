@@ -60,7 +60,7 @@ const FormWithQueryParams: React.FC<FormWithQueryParamsProps> = ({
     // Filter out fields with empty values
     const filteredData = Object.entries(formData)
       .filter(([_, value]) => value)
-      .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
+      .reduce((acc, [key, value]) => ({ ...acc, [key]: value, page: 1 }), {});
 
     // Update URL with filtered query parameters
     const queryParams = new URLSearchParams(filteredData).toString();
